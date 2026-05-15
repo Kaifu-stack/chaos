@@ -294,11 +294,11 @@ PORT=10000
 # 📜 License
 
 MIT License
-
+Copyright (c) 2026 Kaif Alam
 ---
 
 # 👨‍💻 Developer
 
-Created by Kaif Alam.
+Created by Md Kaif Alam.
 
 Vynqo Chaos is an experimental realtime social interaction platform focused on anonymous debates, voice communication, and internet culture.
