@@ -181,7 +181,7 @@ function App() {
       if (pc) await pc.setRemoteDescription(answer);
     };
 
-    const handleIce = ({ candidate, from }) => {
+    const handleIce = async ({ candidate, from }) => {
       const pc = peers.current[from];
       if (pc) await pc.addIceCandidate(candidate);
     };

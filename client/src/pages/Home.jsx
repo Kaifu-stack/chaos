@@ -53,6 +53,7 @@ export default function Home({ joinRoom, createRoom, joinByCode }) {
                 </button>
                 <p style={{ opacity: 0.6, fontSize: "12px" }}>
                     Meet random people. Debate fast. Leave anytime.
+                    @made with ❤️ by{" Md Kaif Alam "}
                 </p>
             </div>
         </div>
