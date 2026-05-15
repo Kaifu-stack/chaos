@@ -16,8 +16,6 @@ export default function Room({
     sendEmoji,
     leaveRoom,
 }) {
-
-    // ✅ emoji list (easy to scale)
     const emojis = [
         "🔥", "😂", "💀", "❤️",
         "😎", "😭", "🤯", "😈",
@@ -25,7 +23,14 @@ export default function Room({
         "💯", "🥶", "😡", "🥳",
         "🤔", "😴", "👀", "🚀"
     ];
-
+    import { useEffect, useRef } from "react";
+    const chatRef = useRef(null);
+    useEffect(() => {
+        chatRef.current?.scrollTo({
+            top: chatRef.current.scrollHeight,
+            behavior: "smooth"
+        });
+    }, [chat]);
     return (
         <div className="app-container">
             <div className="room-card">
@@ -37,6 +42,17 @@ export default function Room({
                 {room.code && (
                     <div style={{ textAlign: "center", marginBottom: "10px" }}>
                         🔑 Code: <b>{room.code}</b>
+
+                        <button
+                            onClick={() => navigator.clipboard.writeText(room.code)}
+                            style={{
+                                marginLeft: "8px",
+                                padding: "4px 8px",
+                                fontSize: "12px"
+                            }}
+                        >
+                            Copy
+                        </button>
                     </div>
                 )}
 
@@ -48,7 +64,7 @@ export default function Room({
                 <div>
                     {users.map((u, i) => (
                         <div
-                            key={u.id} // ✅ better key
+                            key={u.id}
                             className={`user ${u.id === socketId ? "you" : ""}`}
                         >
                             {u.id === socketId && speaking ? "🟢🔊 YOU" : "🟢"} {u.name}
@@ -62,7 +78,7 @@ export default function Room({
                         <button onClick={joinVoice}>🎤 Join Voice</button>
                     ) : (
                         <>
-                            <button onClick={leaveVoice}>🚪 Leave</button>
+                            <button onClick={leaveVoice}>🎤 Disconnect Voice</button>
                             <button onClick={toggleMute}>
                                 {muted ? "🔇 Unmute" : "🎙️ Mute"}
                             </button>
@@ -71,11 +87,11 @@ export default function Room({
                 </div>
 
                 {/* CHAT */}
-                <div className="chat-box">
+                <div className="chat-box" ref={chatRef}>
                     {chat.map((msg, i) => (
-                        <p key={i}>
+                        <div key={i} className="chat-message">
                             <b>{msg.user}:</b> {msg.text}
-                        </p>
+                        </div>
                     ))}
                 </div>
 
@@ -85,8 +101,12 @@ export default function Room({
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type something..."
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                sendMessage();
+                            }
+                        }}
                     />
-                    <button onClick={sendMessage}>Send</button>
                 </div>
 
                 {/* EMOJIS */}

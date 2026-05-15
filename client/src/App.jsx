@@ -12,6 +12,8 @@ function App() {
   const [timer, setTimer] = useState(60);
   const [users, setUsers] = useState([]);
   const [emojis, setEmojis] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [disconnected, setDisconnected] = useState(false);
 
   const {
     joinVoice,
@@ -26,14 +28,49 @@ function App() {
   const [socketId, setSocketId] = useState(null);
 
   useEffect(() => {
-    socket.on("connect", () => {
+    const handleConnect = () => {
       setSocketId(socket.id);
-    });
+    };
+
+    socket.on("connect", handleConnect);
+
+    return () => {
+      socket.off("connect", handleConnect);
+    };
   }, []);
   useEffect(() => {
-    socket.on("errorMsg", (msg) => {
-      alert(msg);
+    socket.on("disconnect", () => {
+      setDisconnected(true);
     });
+
+    socket.on("connect", () => {
+      setDisconnected(false);
+    });
+
+    return () => {
+      socket.off("disconnect");
+      socket.off("connect");
+    };
+  }, []);
+  useEffect(() => {
+    socket.on("connect", () => {
+      setLoading(false);
+    });
+
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
+  useEffect(() => {
+    const handleError = (msg) => {
+      alert(msg);
+    };
+
+    socket.on("errorMsg", handleError);
+
+    return () => {
+      socket.off("errorMsg", handleError);
+    };
   }, []);
   const sendEmoji = (emoji) => {
     socket.emit("sendEmoji", emoji);
@@ -148,7 +185,7 @@ function App() {
   const joinRoom = () => socket.emit("joinRoom");
 
   const sendMessage = () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !room) return;
     socket.emit("sendMessage", message);
     setMessage("");
   };
@@ -160,16 +197,22 @@ function App() {
 
     leaveVoice();
 
-    setTimeout(() => {
-      setRoom(null);
-      setChat([]);
-      setUsers([]);
-      setTimer(60);
-    }, 100);
+    setRoom(null);
+    setChat([]);
+    setUsers([]);
+    setTimer(60);
+    setMessage("");
   };
   const joinByCode = (code) => {
     socket.emit("joinByCode", { code });
   };
+  if (loading) {
+    return (
+      <div className="app-container">
+        <h1>Connecting to Chaos...</h1>
+      </div>
+    );
+  }
   if (!room) {
     return <Home joinRoom={joinRoom} createRoom={createRoom} joinByCode={joinByCode} />;
   }
@@ -191,6 +234,11 @@ function App() {
           </span>
         ))}
       </div>
+      disconnected && (
+      <div className="disconnect-banner">
+        ⚠️ Reconnecting...
+      </div>
+      );
 
       <Room
         room={room}
