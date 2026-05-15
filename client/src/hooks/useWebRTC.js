@@ -74,7 +74,7 @@ export default function useWebRTC(users) {
             audio: true
         });
 
-        detectSpeaking(); // 👈 start detection
+        detectSpeaking();
 
         users.forEach((user) => {
             if (user.id === socket.id) return;

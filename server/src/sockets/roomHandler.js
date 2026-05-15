@@ -13,7 +13,7 @@ import { startTimer } from "../rooms/timer.js";
 export function handleSocket(io, socket) {
     console.log("User connected:", socket.id);
 
-    // 🔀 RANDOM JOIN
+    //  RANDOM JOIN
     socket.on("joinRoom", () => {
         const room = findOrCreateRoom();
 
@@ -33,7 +33,7 @@ export function handleSocket(io, socket) {
         io.to(room.id).emit("updateUsers", room.users);
     });
 
-    // 🆕 CREATE CUSTOM ROOM
+    //  CREATE CUSTOM ROOM
     socket.on("createRoom", ({ timer }) => {
         const room = createRoom(timer);
 
@@ -92,7 +92,7 @@ export function handleSocket(io, socket) {
         });
     });
 
-    // 🎉 EMOJI
+    //  EMOJI
     socket.on("sendEmoji", (emoji) => {
         const room = getUserRoom(socket.id);
         if (!room) return;
@@ -100,7 +100,7 @@ export function handleSocket(io, socket) {
         io.to(room.id).emit("receiveEmoji", emoji);
     });
 
-    // 🔊 WEBRTC SIGNALING
+    //  WEBRTC SIGNALING
     socket.on("offer", ({ offer, to }) => {
         socket.to(to).emit("offer", { offer, from: socket.id });
     });
@@ -116,7 +116,7 @@ export function handleSocket(io, socket) {
         });
     });
 
-    // ❌ DISCONNECT
+    //  DISCONNECT
     socket.on("disconnect", () => {
         const room = getUserRoom(socket.id);
 
