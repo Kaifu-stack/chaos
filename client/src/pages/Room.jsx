@@ -48,14 +48,23 @@ export default function Room({
     return (
         <div className="min-h-screen bg-[#070b14] text-white flex overflow-hidden">
 
-            {/* 👥 SIDEBAR */}
-            <div className="w-[75] border-r border-white/10 bg-white/5 backdrop-blur-xl p-5 hidden md:flex flex-col">
+            {/* SIDEBAR */}
+            <div className="w-20 md:w-72 border-r border-white/10 bg-white/5 backdrop-blur-xl p-5 hidden md:flex flex-col">
 
                 {/* LOGO */}
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-2xl font-black tracking-wide">
+
+                    <button
+                        onClick={() =>
+                            window.scrollTo({
+                                top: 0,
+                                behavior: "smooth"
+                            })
+                        }
+                        className="text-2xl font-black tracking-wide hover:scale-105 transition duration-300"
+                    >
                         🔥 Vynqo
-                    </h1>
+                    </button>
 
                     <button
                         onClick={leaveRoom}
@@ -63,20 +72,23 @@ export default function Room({
                     >
                         🚪
                     </button>
+
                 </div>
 
                 {/* ROOM */}
                 <div className="bg-white/5 rounded-2xl p-4 border border-white/10 mb-5">
+
                     <p className="text-sm text-gray-400">
                         Topic
                     </p>
 
-                    <h2 className="text-xl font-bold mt-2">
+                    <h2 className="text-xl font-bold mt-2 truncate">
                         {room.topic}
                     </h2>
 
                     {room.code && (
                         <div className="mt-4 flex items-center justify-between">
+
                             <div>
                                 <p className="text-xs text-gray-400">
                                     Room Code
@@ -95,12 +107,15 @@ export default function Room({
                             >
                                 Copy
                             </button>
+
                         </div>
                     )}
+
                 </div>
 
                 {/* INFO */}
                 <div className="flex justify-between text-sm bg-white/5 rounded-2xl p-4 border border-white/10">
+
                     <div>
                         ⏳ {formatTime(timer)}
                     </div>
@@ -108,48 +123,47 @@ export default function Room({
                     <div>
                         👥 {users.length}
                     </div>
+
                 </div>
 
                 {/* USERS */}
                 <div className="mt-6 flex-1 overflow-y-auto">
+
                     <h3 className="text-sm text-gray-400 mb-4">
                         Active Users
                     </h3>
 
                     <div className="space-y-3">
+
                         {users.map((u) => (
                             <div
                                 key={u.id}
                                 className={`flex items-center gap-3 p-3 rounded-2xl border transition
-                                
-                                ${u.id === socketId
-                                        ? "bg-blue-500/10 border-blue-500/30"
-                                        : "bg-white/5 border-white/10"
-                                    }
 
-                                ${u.id === socketId && speaking
+                        ${u.id === socketId
+                                        ? "bg-blue-500/10 border-blue-500/30"
+                                        : "bg-white/5 border-white/10"}
+
+                        ${u.id === socketId && speaking
                                         ? "shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-                                        : ""
-                                    }
-                                `}
+                                        : ""}
+                        `}
                             >
 
-                                {/* AVATAR */}
                                 <div
                                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold
-                                    
-                                    ${u.id === socketId
+
+                            ${u.id === socketId
                                             ? "bg-blue-500"
-                                            : "bg-purple-500"
-                                        }
-                                    `}
+                                            : "bg-purple-500"}
+                            `}
                                 >
                                     {u.name?.charAt(0)}
                                 </div>
 
-                                {/* INFO */}
-                                <div className="flex-1">
-                                    <p className="font-semibold">
+                                <div className="flex-1 min-w-0">
+
+                                    <p className="font-semibold truncate">
                                         {u.id === socketId
                                             ? "You"
                                             : u.name}
@@ -160,32 +174,36 @@ export default function Room({
                                             ? "🎤 Speaking..."
                                             : "Online"}
                                     </p>
+
                                 </div>
 
                             </div>
                         ))}
+
                     </div>
+
                 </div>
 
             </div>
 
-            {/* 💬 MAIN */}
-            <div className="flex-1 flex flex-col">
+            {/* MAIN */}
+            <div className="flex-1 flex flex-col min-w-0">
 
                 {/* TOPBAR */}
                 <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
 
                     <div>
-                        <h2 className="text-xl font-bold">
+
+                        <h2 className="text-xl font-bold truncate">
                             {room.topic}
                         </h2>
 
                         <p className="text-sm text-gray-400">
                             Realtime chaos room
                         </p>
+
                     </div>
 
-                    {/* VOICE */}
                     <div className="flex items-center gap-3">
 
                         {!inVoice ? (
@@ -208,11 +226,10 @@ export default function Room({
                                     onClick={toggleMute}
                                     className={`px-5 py-3 rounded-2xl font-semibold transition
 
-                                    ${muted
+                            ${muted
                                             ? "bg-yellow-500/20 text-yellow-300"
-                                            : "bg-blue-500 text-white"
-                                        }
-                                    `}
+                                            : "bg-blue-500 text-white"}
+                            `}
                                 >
                                     {muted
                                         ? "🔇 Unmute"
@@ -220,7 +237,9 @@ export default function Room({
                                 </button>
                             </>
                         )}
+
                     </div>
+
                 </div>
 
                 {/* CHAT */}
@@ -228,11 +247,13 @@ export default function Room({
                     ref={chatRef}
                     className="flex-1 overflow-y-auto p-6 space-y-4"
                 >
+
                     {chat.map((msg, i) => (
                         <div
                             key={i}
                             className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xl"
                         >
+
                             <div className="flex items-center gap-2 mb-2">
 
                                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">
@@ -242,62 +263,70 @@ export default function Room({
                                 <p className="font-semibold">
                                     {msg.user}
                                 </p>
+
                             </div>
 
                             <p className="text-gray-200 leading-relaxed">
                                 {msg.text}
                             </p>
+
                         </div>
                     ))}
+
                 </div>
 
                 {/* INPUT */}
                 <div className="border-t border-white/10 p-5 bg-black/20 backdrop-blur-xl">
 
-                    <div className="flex gap-3">
+                    <div className="max-w-6xl mx-auto">
 
-                        <input
-                            value={message}
-                            onChange={(e) =>
-                                setMessage(e.target.value)
-                            }
-                            placeholder="Type something chaotic..."
-                            className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 outline-none focus:border-blue-500 transition"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    sendMessage();
+                        <div className="flex gap-3">
+
+                            <input
+                                value={message}
+                                onChange={(e) =>
+                                    setMessage(e.target.value)
                                 }
-                            }}
-                        />
+                                placeholder="Type something chaotic..."
+                                className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 outline-none focus:border-blue-500 transition"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        sendMessage();
+                                    }
+                                }}
+                            />
 
-                        <button
-                            onClick={sendMessage}
-                            disabled={!message.trim()}
-                            className="bg-blue-500 hover:bg-blue-600 disabled:opacity-40 px-6 py-4 rounded-2xl font-bold transition shadow-lg shadow-blue-500/20"
-                        >
-                            Send
-                        </button>
-
-                    </div>
-
-                    {/* EMOJIS */}
-                    <div className="flex gap-2 overflow-x-auto mt-5 pb-2">
-
-                        {emojis.map((e, i) => (
                             <button
-                                key={i}
-                                onClick={() => sendEmoji(e)}
-                                className="min-w-[12.5] h-[12.5] text-2xl bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition hover:scale-110"
+                                onClick={sendMessage}
+                                disabled={!message.trim()}
+                                className="bg-blue-500 hover:bg-blue-600 disabled:opacity-40 px-6 py-4 rounded-2xl font-bold transition shadow-lg shadow-blue-500/20"
                             >
-                                {e}
+                                Send
                             </button>
-                        ))}
+
+                        </div>
+
+                        {/* EMOJIS */}
+                        <div className="flex gap-2 overflow-x-auto mt-5 pb-2">
+
+                            {emojis.map((e, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => sendEmoji(e)}
+                                    className="min-w-[50px] h-[50px] text-2xl bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition hover:scale-110"
+                                >
+                                    {e}
+                                </button>
+                            ))}
+
+                        </div>
 
                     </div>
 
                 </div>
 
             </div>
+
         </div>
     );
 }
