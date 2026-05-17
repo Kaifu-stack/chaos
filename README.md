@@ -1,6 +1,6 @@
-# 🔥 Vynqo Chaos
+# 🔥 Chaos
 
-Vynqo Chaos is a realtime anonymous social debate platform where users can instantly join random rooms, chat, react with live emojis, and talk through voice chat.
+Chaos is a realtime anonymous social debate platform where users can instantly join random rooms, chat, react with live emojis, and talk through voice chat.
 
 Built using:
 
@@ -301,4 +301,4 @@ Copyright (c) 2026 Kaif Alam
 
 Created by Md Kaif Alam.
 
-Vynqo Chaos is an experimental realtime social interaction platform focused on anonymous debates, voice communication, and internet culture.
+Chaos is an experimental realtime social interaction platform focused on anonymous debates, voice communication, and internet culture.
