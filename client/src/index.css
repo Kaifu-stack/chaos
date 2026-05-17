@@ -1,84 +1,27 @@
-/* 🌌 BACKGROUND */
+@import "tailwindcss";
+
+/* GLOBAL */
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
   color: white;
 
-  background: linear-gradient(-45deg, #3e3e50, #141425, #20208b);
+  background: linear-gradient(-45deg,
+      #3e3e50,
+      #141425,
+      #20208b);
+
   background-size: 400% 400%;
+
   animation: gradientMove 10s ease infinite;
+
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-.home-card {
-  text-align: center;
-  padding: 40px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(90, 103, 255, 0.2);
-}
-
-/* 📦 CENTER CONTAINER */
-.app-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-/* 💎 CARD */
-.room-card {
-  width: 100%;
-  max-width: 400px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 0 30px rgba(90, 103, 255, 0.2);
-}
-
-/* 🧠 HEADER */
-h2 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-
-/* ⏳ INFO */
-.room-info {
-  text-align: center;
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* 👥 USERS */
-.user {
-  padding: 6px;
-  border-radius: 8px;
-}
-
-.user.you {
-  background: rgba(0, 255, 150, 0.2);
-}
-
-/* 🎤 BUTTONS */
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-  background: #5a67ff;
-  color: white;
-  cursor: pointer;
-  margin: 5px;
-  transition: 0.2s;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 12px rgba(100, 150, 255, 0.6);
-}
-
+/*  BACKGROUND ANIMATION */
 @keyframes gradientMove {
+
   0% {
     background-position: 0% 50%;
   }
@@ -92,81 +35,67 @@ button:hover {
   }
 }
 
-/* 💬 CHAT BOX */
-.chat-box {
-  max-height: 200px;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px 0;
-}
-
-/* 📝 INPUT */
-.input-row {
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-}
-
-input {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-/* 🎉 EMOJI BUTTONS */
-.emoji-bar {
-  text-align: center;
-}
-
+/*  EMOJI SYSTEM */
 .emoji-container {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+  inset: 0;
   pointer-events: none;
   z-index: 9999;
+  overflow: hidden;
 }
 
 .emoji {
   position: absolute;
-  bottom: 0;
+  bottom: -40px;
   font-size: 40px;
+
   animation: explodeUp ease-out forwards;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
 }
 
-.leave-btn {
-  background: #ff4d4d;
-}
-
-.leave-btn:hover {
-  background: #ff6666;
-}
-
+/*  EMOJI ANIMATION */
 @keyframes explodeUp {
+
   0% {
-    transform: translateY(0) scale(0.5);
+    transform:
+      translateY(0) scale(0.5);
+
     opacity: 1;
   }
 
   30% {
-    transform: translateY(-120px) translateX(-30px) scale(1.2);
+    transform:
+      translateY(-120px) translateX(-30px) scale(1.2);
   }
 
   60% {
-    transform: translateY(-250px) translateX(30px) scale(1);
+    transform:
+      translateY(-250px) translateX(30px) scale(1);
   }
 
   100% {
-    transform: translateY(-400px) translateX(0px) scale(0.8);
+    transform:
+      translateY(-450px) translateX(0px) scale(0.8);
+
     opacity: 0;
   }
+}
+
+/*  SCROLLBAR */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }

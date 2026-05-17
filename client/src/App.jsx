@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "./socket/socket";
+
 import useWebRTC from "./hooks/useWebRTC";
 
 import Home from "./pages/Home";
@@ -14,6 +15,7 @@ function App() {
   const [emojis, setEmojis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [disconnected, setDisconnected] = useState(false);
+  const [socketId, setSocketId] = useState(null);
 
   const {
     joinVoice,
@@ -25,46 +27,30 @@ function App() {
     peers
   } = useWebRTC(users);
 
-  const [socketId, setSocketId] = useState(null);
-
+  // 🔌 SOCKET CONNECTION
   useEffect(() => {
-    const handleConnect = () => {
+    const onConnect = () => {
       setSocketId(socket.id);
-    };
-
-    socket.on("connect", handleConnect);
-
-    return () => {
-      socket.off("connect", handleConnect);
-    };
-  }, []);
-  useEffect(() => {
-    socket.on("disconnect", () => {
-      setDisconnected(true);
-    });
-
-    socket.on("connect", () => {
-      setDisconnected(false);
-    });
-
-    return () => {
-      socket.off("disconnect");
-      socket.off("connect");
-    };
-  }, []);
-  useEffect(() => {
-    socket.on("connect", () => {
       setLoading(false);
-    });
+      setDisconnected(false);
+    };
+
+    const onDisconnect = () => {
+      setDisconnected(true);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
 
     return () => {
-      socket.off("connect");
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
     };
   }, []);
+
+  // ❌ ERROR
   useEffect(() => {
-    const handleError = (msg) => {
-      alert(msg);
-    };
+    const handleError = (msg) => alert(msg);
 
     socket.on("errorMsg", handleError);
 
@@ -72,61 +58,39 @@ function App() {
       socket.off("errorMsg", handleError);
     };
   }, []);
-  const sendEmoji = (emoji) => {
-    socket.emit("sendEmoji", emoji);
+
+  // 🎉 EMOJI EFFECT
+  const handleEmoji = (emoji) => {
+    const temp = [];
+
+    for (let i = 0; i < 6; i++) {
+      const id = Date.now() + Math.random();
+
+      temp.push({
+        id,
+        emoji,
+        x: Math.random() * 100,
+        scale: 0.8 + Math.random() * 1.5,
+        rotate: Math.random() * 360,
+        duration: 1500 + Math.random() * 1000
+      });
+
+      setTimeout(() => {
+        setEmojis((prev) =>
+          prev.filter((e) => e.id !== id)
+        );
+      }, 2500);
+    }
+
+    setEmojis((prev) => [...prev, ...temp]);
   };
 
+  // 🔊 WEBRTC
   useEffect(() => {
-    const handleRoomData = (roomData) => {
-      setRoom(roomData);
-      setUsers(roomData.users || []);
-    };
-
-    const handleMessage = (msg) => {
-      setChat((prev) => [...prev, msg]);
-    };
-
-    const handleTimer = (t) => setTimer(t);
-
-    const handleUsers = (u) => setUsers(u);
-
-    const handleEnd = () => {
-      alert("⏳ Room ended!");
-      window.location.reload();
-    };
-    const handleEmoji = (emoji) => {
-      const newEmojis = [];
-
-      for (let i = 0; i < 6; i++) {
-        const id = Date.now() + Math.random();
-
-        newEmojis.push({
-          id,
-          emoji,
-          x: Math.random() * 100,
-          scale: 0.8 + Math.random() * 1.5,
-          rotate: Math.random() * 360,
-          duration: 1500 + Math.random() * 1000
-        });
-
-        setTimeout(() => {
-          setEmojis((prev) => prev.filter((e) => e.id !== id));
-        }, 2500);
-      }
-
-      setEmojis((prev) => [...prev, ...newEmojis]);
-    };
-
-    // ---- WebRTC ----
     const handleOffer = async ({ offer, from }) => {
-
-      console.log("Offer received from:", from);
-
       const pc = new RTCPeerConnection({
         iceServers: [
-          {
-            urls: "stun:stun.l.google.com:19302"
-          }
+          { urls: "stun:stun.l.google.com:19302" }
         ]
       });
 
@@ -142,17 +106,10 @@ function App() {
       };
 
       pc.ontrack = (e) => {
-
-        console.log("TRACK RECEIVED");
-
         const audio = new Audio();
-
         audio.srcObject = e.streams[0];
         audio.autoplay = true;
-
-        audio.play().catch((err) => {
-          console.log("Audio play failed:", err);
-        });
+        audio.play().catch(console.log);
       };
 
       await pc.setRemoteDescription(offer);
@@ -176,51 +133,86 @@ function App() {
       });
     };
 
-    const handleAnswer = async ({ answer, from }) => {
+    const handleAnswer = async ({
+      answer,
+      from
+    }) => {
       const pc = peers.current[from];
       if (pc) await pc.setRemoteDescription(answer);
     };
 
-    const handleIce = async ({ candidate, from }) => {
+    const handleIce = async ({
+      candidate,
+      from
+    }) => {
       const pc = peers.current[from];
       if (pc) await pc.addIceCandidate(candidate);
     };
 
-    // ---- socket bindings ----
-    socket.on("roomData", handleRoomData);
-    socket.on("receiveMessage", handleMessage);
-    socket.on("timer", handleTimer);
-    socket.on("updateUsers", handleUsers);
-    socket.on("roomEnded", handleEnd);
-
     socket.on("offer", handleOffer);
     socket.on("answer", handleAnswer);
     socket.on("ice-candidate", handleIce);
-    socket.on("receiveEmoji", handleEmoji);
 
     return () => {
-      socket.off("roomData", handleRoomData);
-      socket.off("receiveMessage", handleMessage);
-      socket.off("timer", handleTimer);
-      socket.off("updateUsers", handleUsers);
-      socket.off("roomEnded", handleEnd);
       socket.off("offer", handleOffer);
       socket.off("answer", handleAnswer);
       socket.off("ice-candidate", handleIce);
-      socket.off("receiveEmoji", handleEmoji);
     };
   }, []);
 
-  const joinRoom = () => socket.emit("joinRoom");
+  // 📡 MAIN EVENTS
+  useEffect(() => {
+    socket.on("roomData", (r) => {
+      setRoom(r);
+      setUsers(r.users || []);
+    });
+
+    socket.on("receiveMessage", (msg) => {
+      setChat((prev) => [...prev, msg]);
+    });
+
+    socket.on("timer", setTimer);
+
+    socket.on("updateUsers", setUsers);
+
+    socket.on("receiveEmoji", handleEmoji);
+
+    socket.on("roomEnded", () => {
+      alert("⏳ Room ended!");
+      leaveRoom();
+    });
+
+    return () => {
+      socket.off("roomData");
+      socket.off("receiveMessage");
+      socket.off("timer");
+      socket.off("updateUsers");
+      socket.off("receiveEmoji");
+      socket.off("roomEnded");
+    };
+  }, []);
+
+  // 🚀 ACTIONS
+  const joinRoom = () =>
+    socket.emit("joinRoom");
+
+  const createRoom = (timer) =>
+    socket.emit("createRoom", { timer });
+
+  const joinByCode = (code) =>
+    socket.emit("joinByCode", { code });
 
   const sendMessage = () => {
-    if (!message.trim() || !room) return;
+    if (!message.trim()) return;
+
     socket.emit("sendMessage", message);
+
     setMessage("");
   };
-  const createRoom = (timer) => {
-    socket.emit("createRoom", { timer });
-  };
+
+  const sendEmoji = (emoji) =>
+    socket.emit("sendEmoji", emoji);
+
   const leaveRoom = () => {
     socket.emit("leaveRoom");
 
@@ -232,20 +224,41 @@ function App() {
     setTimer(60);
     setMessage("");
   };
-  const joinByCode = (code) => {
-    socket.emit("joinByCode", { code });
-  };
+
+  // ⏳ LOADING
   if (loading) {
     return (
-      <div className="app-container">
-        <h1>Connecting to Chaos...</h1>
+      <div className="min-h-screen bg-[#070b14] text-white flex items-center justify-center">
+        <h1 className="text-3xl font-bold animate-pulse">
+          Connecting...
+        </h1>
       </div>
     );
   }
-  if (!room) {
-    return <Home joinRoom={joinRoom} createRoom={createRoom} joinByCode={joinByCode} />;
+
+  // ❌ DISCONNECTED
+  if (disconnected) {
+    return (
+      <div className="min-h-screen bg-[#070b14] text-white flex items-center justify-center">
+        <h1 className="text-3xl font-bold">
+          ⚠️ Disconnected
+        </h1>
+      </div>
+    );
   }
 
+  // 🏠 HOME
+  if (!room) {
+    return (
+      <Home
+        joinRoom={joinRoom}
+        createRoom={createRoom}
+        joinByCode={joinByCode}
+      />
+    );
+  }
+
+  // 💬 ROOM
   return (
     <>
       <div className="emoji-container">
@@ -263,7 +276,6 @@ function App() {
           </span>
         ))}
       </div>
-
 
       <Room
         room={room}
